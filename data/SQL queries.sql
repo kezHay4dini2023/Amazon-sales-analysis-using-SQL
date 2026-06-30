@@ -1,3 +1,5 @@
+
+-- inspect the table 
 SELECT *
 FROM `amazon sale report`;
 
@@ -48,9 +50,10 @@ FROM `amazon sale report`
         `Fulfilment`,
         `Courier Status`,
         `fulfilled-by`,
+        `ship-service-level`,
 		COUNT(`Courier Status`) AS courier_category_count
     FROM `amazon sale report`
-    GROUP BY `status`, `Fulfilment`, `Courier Status`, `fulfilled-by`
+    GROUP BY `status`, `Fulfilment`, `Courier Status`, `fulfilled-by`, `ship-service-level`
     ; -- all the null values of status courier came from a merchant fullfilled-by easyship that was cancelled. 
 
 -- check for the null in Qty column (NO null value was found). 
@@ -94,6 +97,57 @@ GROUP BY `Unnamed: 22`
 ; -- this column isnt useful. it isnt supposed to be here. its a phantom column. 
 
 
+-- clean the table 
+WITH cleaned_data AS (
+	SELECT
+    `Order ID`,
+    `Date`,
+    `Status`,
+    `Fulfilment`,
+    `Sales Channel`,
+    `ship-service-level`,
+    `Style`,
+    `SKU`,
+    `Category`,
+    `Size`,
+    `ASIN`,
+		CASE 
+			WHEN `Courier Status` IS NULL OR `Courier Status` = '' OR `Courier Status` = ' ' 
+			THEN  'Cancelled Prior to Dispatch'
+			ELSE `Courier Status`
+			END AS Courier_status_cleaned,
+		CASE 
+			WHEN `Qty` IS NULL OR `Qty` = '' OR `Qty` = ' ' 
+			THEN  0
+			ELSE `Qty`
+			END AS Qty_cleaned,
+	`currency`,
+		CASE 
+			WHEN `Amount` IS NULL OR `Amount` = '' OR `Amount` = ' ' 
+			THEN  0
+			ELSE `Amount`
+			END AS Amount_cleaned,
+	`ship-city`,
+    `ship-state`,
+    `ship-postal-code`,
+    `ship-country`,
+		CASE 
+			WHEN `promotion-ids` IS NULL OR `promotion-ids` = '' OR `promotion-ids` = ' ' 
+			THEN  'No Promotion'
+			ELSE `promotion-ids`
+			END AS promotion_ids_cleaned,
+	`B2B`,
+		CASE 
+			WHEN `fulfilled-by` IS NULL OR `fulfilled-by` = '' OR `fulfilled-by` = ' ' 
+			THEN  'Amazon (FBA Network)'
+			ELSE `fulfilled-by`
+			END AS fulfilled_by_cleaned
+	FROM `amazon sale report`
+)
+
+SELECT *
+FROM cleaned_data
+;
 
 
 
