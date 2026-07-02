@@ -243,3 +243,9 @@ FROM `new_amazon_sales_report`;
 ```
 - using this query we see that there is no more null values with the new table. 
 
+### Adding New Features 
+
+
+
+## Analyzing the Data: Creating a Dashboard
+
