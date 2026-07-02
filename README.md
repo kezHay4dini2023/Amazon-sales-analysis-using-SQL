@@ -245,7 +245,121 @@ FROM `new_amazon_sales_report`;
 
 ### Adding New Features 
 
+- in this section we are going to add essential features that will help analyze and visualize the data more. to see if the revenues and profits. see if there are trends, patterns that are happening.
 
+
+1. adding revenue:
+``` sql
+ALTER TABLE `new_amazon_sales_report`
+			ADD `Revenue` DECIMAL(10, 2);
+		
+		SET SQL_SAFE_UPDATES = 0;
+
+		UPDATE `new_amazon_sales_report`
+			SET `Revenue` =
+				CASE
+					WHEN `Status` = 'Cancelled' THEN 0
+					ELSE `Amount_cleaned`
+				END;
+
+		SET SQL_SAFE_UPDATES = 1;
+
+```
+
+2. adding column that says if an order is cancelled or not
+``` sql
+ ALTER TABLE `new_amazon_sales_report`
+			ADD `IsCancelled` BOOLEAN;
+		SET SQL_SAFE_UPDATES = 0;
+        
+		UPDATE `new_amazon_sales_report`
+			SET `IsCancelled` =
+				CASE
+					WHEN `Status` = 'Cancelled' THEN 1
+					ELSE 0
+				END;
+		SET SQL_SAFE_UPDATES = 1;
+
+```
+
+3. adding a column that checks if it has been delivered or not
+
+``` sql
+        ALTER TABLE `new_amazon_sales_report`
+			ADD `IsDelivered` BOOLEAN;
+		SET SQL_SAFE_UPDATES = 0;
+        
+		UPDATE `new_amazon_sales_report`
+			SET `IsDelivered` =
+				CASE
+					WHEN `Status` LIKE '%Delivered%' THEN 1
+					ELSE 0
+				END;
+		SET SQL_SAFE_UPDATES = 1;
+```
+
+4. adding unit price. in this part. any orders that have a quantity of 0 will have a null value of unit price. having the value as null is better than having it in 0 which can be misleading. getting the unit price depends on t.Amount_cleaned / t.Qty_cleaned. if the value of t.Qty_cleaned is 0. this would result in an error. and inserting 0 as a unit price would define the price, which is misleading as there is no way of getting the price of the unit price besides  t.Amount_cleaned / t.Qty_cleaned. averaging based on group SKU was initially thought as an option. but was shut down as the question of if the whole group of a particular sku all have a quantity of 0. its best to have a missing value rather than a misleading one. 
+
+  ``` sql 
+   -- adding UnitPrice feature
+        ALTER TABLE `new_amazon_sales_report`
+			ADD `UnitPrice` DECIMAL(10, 2);
+            
+		SET SQL_SAFE_UPDATES = 0;
+			UPDATE new_amazon_sales_report AS t
+				SET UnitPrice =
+				CASE
+					WHEN t.Qty_cleaned > 0 THEN
+						t.Amount_cleaned / t.Qty_cleaned
+					ELSE
+						NULL
+				END
+                ;
+		SET SQL_SAFE_UPDATES = 1; -- sales unit price. 
+  
+  ```
+
+5. Converting the text dates into the standard MySQL format
+``` sql
+SET SQL_SAFE_UPDATES = 0;
+
+				-- 1. Convert the text dates into the standard MySQL format (YYYY-MM-DD)
+				UPDATE `new_amazon_sales_report`
+				SET `Date` = DATE_FORMAT(STR_TO_DATE(`Date`, '%m-%d-%y'), '%Y-%m-%d');
+
+				-- 2. Permanently change the column type to DATE
+				ALTER TABLE `new_amazon_sales_report` MODIFY COLUMN `Date` DATE;
+
+			SET SQL_SAFE_UPDATES = 1;
+            
+```
+
+6. adding OrderYear ( looking for what Year), OrderMonth (looking for what Month), Monthname ( looking for Name of the Month), Quarter (looking for what quarter of the year), OrderDay ( looking for what day of the month), and WeekDay ( looking for what day of the week)
+``` sql
+			-- adding OrderYear 
+			ALTER TABLE `new_amazon_sales_report`
+            ADD orderYear INT AS (YEAR(`Date`)); 
+            
+            -- adding OrderMonth
+			ALTER TABLE `new_amazon_sales_report`
+            ADD orderMonth INT AS (MONTH(`Date`)); 
+            
+            -- adding Monthname
+            ALTER TABLE `new_amazon_sales_report`
+            ADD MonthName VARCHAR(20) AS (MONTHNAME(`Date`));
+            
+            -- adding Quarter 
+			ALTER TABLE `new_amazon_sales_report`
+            ADD OrderQuarter INT AS (QUARTER(`Date`)); 
+            
+            -- adding OrderDay 
+            ALTER TABLE `new_amazon_sales_report`
+            ADD OrderDay  INT AS (DAY(`Date`)); 
+            
+            -- adding Weekday
+            ALTER TABLE `new_amazon_sales_report`
+            ADD Weekday VARCHAR(20) AS (weekday(`Date`));
+```
 
 ## Analyzing the Data: Creating a Dashboard
 

@@ -8,7 +8,9 @@ SELECT
 FROM `amazon sale report`;
 
 -- need to resend the table again. 
-DROP TABLE `amazon sale report`; 
+-- DROP TABLE `amazon sale report`; 
+-- DROP TABLE `amazon_sale_report`;
+-- DROP TABLE `new_amazon_sales`;
 -- total columns
 
 SELECT COUNT(*) AS total_columns
@@ -333,5 +335,10 @@ GROUP BY `Date`
 ;
 
 SELECT COUNT(*)
-FROM `amazon sale report`
+FROM `new_amazon_sales_report`
 ;
+
+SELECT *
+FROM `new_amazon_sales_report`
+;
+
