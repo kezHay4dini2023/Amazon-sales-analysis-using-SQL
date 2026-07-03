@@ -68,7 +68,7 @@ lets look at each of column at why they have null values
     ; -- all the null values of status courier came from a merchant fullfilled-by easyship that was cancelled. 
 ```
 <p align="center">
-  <img src="images\courier_status.png" alt="courier status" width="100%">
+  <img src="images\courier_status.png" alt="courier status" width="70%">
 </p>
 
 2. `Qty` - No factual NULL values exist within the Qty column. Zero values (0) are recorded properly as integers. the 0 value was automatically assumed by the query to be a null value. 
@@ -84,7 +84,7 @@ GROUP BY `Qty`
     
 ``` 
 <p align="center">
-  <img src="images\qty.png" alt="qty" width="100%">
+  <img src="images\qty.png" alt="qty" width="70%">
 </p>
 
 3. `Amount` - Gaps inside the Amount column are perfectly correlated with rows where the transaction shows a quantity of 0 (which was mistakenly assumed by the query to be a null value) and a status of Cancelled. Since the orders were terminated and no physical goods were exchanged, zero financial revenue was generated, meaning these records represent a deliberate logical absence rather than a data input entry error.
@@ -98,7 +98,7 @@ FROM `amazon sale report`
 GROUP BY `Amount`;
 ```
 <p align="center">
-  <img src="images\amount.png" alt="qty" width="100%">
+  <img src="images\amount.png" alt="qty" width="70%">
 </p>
 
 4. `promotion-ids` - NULL fields inside promotion-ids simply denote standard orders where items were purchased at regular, full base retail prices. No coupon codes, promotional seasonal events, or special programmatic rewards (such as corporate free shipping or active award discounts) were attached to these specific checkouts.
@@ -114,7 +114,7 @@ GROUP BY `promotion-ids`, `Courier Status`;
 ```
 
 <p align="center">
-  <img src="images\promotion.png" alt="qty" width="100%">
+  <img src="images\promotion.png" alt="qty" width="70%">
 </p>
 
 5. `fulfilled-by` - All missing fields within the fulfilled-by column line up exactly with rows where the overarching Fulfilment channel is designated as Amazon. The database engine populates the fulfilled-by property strictly when an independent merchant manages their own fulfillment logistics (e.g., using Easy Ship).
@@ -131,7 +131,7 @@ GROUP BY `Fulfilment`,`Fulfilled-by`
 ```
 
 <p align="center">
-  <img src="images\fulfilled-by.png" alt="qty" width="100%">
+  <img src="images\fulfilled-by.png" alt="qty" width="70%">
 </p>
 
 
@@ -146,7 +146,7 @@ GROUP BY `Unnamed: 22`
 ; -- this column isnt useful. it isnt supposed to be here. its a phantom column. 
 ```
 <p align="center">
-  <img src="images\unnamed-22.png" alt="qty" width="100%">
+  <img src="images\unnamed-22.png" alt="qty" width="70%">
 </p>
 
 
@@ -363,3 +363,7 @@ SET SQL_SAFE_UPDATES = 0;
 
 ## Analyzing the Data: Creating a Dashboard
 
+
+<p align="center">
+  <img src="images\Dashboard.png" alt="qty" width="80%">
+</p>
